@@ -25,7 +25,7 @@
 #define MAX_BUFFER_SIZE            1024
 
 #define _ROTATE_FACTOR              0.005f
-#define _SCALE_FACTOR               0.01f
+#define _SCALE_FACTOR               0.1f
 #define _TRANS_FACTOR               0.02f
 
 #define _Z_NEAR                     0.001f
@@ -51,7 +51,7 @@ bool leftMouseButtonHold = false;
 bool isFirstMouse = true;
 float prevMouseX;
 float prevMouseY;
- glm::mat4 modelMatrix = glm::mat4(1.0f);
+glm::mat4 modelMatrix = glm::mat4(1.0f);
 
  // Mesh color table
 glm::vec3 colorTable[4] = 
@@ -89,7 +89,7 @@ int LoadInput(std::vector<float> &verList, std::vector<unsigned> &triList)
 
 	int vCount = 0, vnCount = 0, vtCount = 0, fCount = 0;
 
-	std::ifstream file("data/sphere.obj");
+	std::ifstream file("data/mickey.obj");
 
     if (!file.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
@@ -187,19 +187,19 @@ void SetMeshColor(int &colorID)
 // TODO: insert your code in this function for Mesh Transformation (Rotation)
 void RotateModel(float angle, glm::vec3 axis)
 {
-    
+    modelMatrix = glm::rotate(glm::mat4(1.0f), angle, axis) * modelMatrix;
 }
 
 // TODO: insert your code in this function for Mesh Transformation (Translation)
 void TranslateModel(glm::vec3 transVec)
 {
-
+    modelMatrix = glm::translate(glm::mat4(1.0f), transVec) * modelMatrix;
 }
 
 // TODO: insert your code in this function for Mesh Transformation (Scaling)
 void ScaleModel(float scale)
 {
-    
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(scale, scale, scale));
 }
 
 

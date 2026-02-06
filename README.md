@@ -2,7 +2,7 @@
 50.017 Graphics and Visualisation - Assignment 1
 
 # Explanations for each part
-## Mesh Loading (LoadInput function)
+## LoadInput (mesh loading)
 - `std::ifstream` is used to load the OBJ file first
 - Then we read the file line by line
 - If it's a vertex or normal (line starts with v or vn), we read the xyz values, and store them in a vector of `glm::vec3`
@@ -15,3 +15,39 @@
 	- Using the pair created previously as a key we check a map to see if this vertex already exists
 		- if yes we just push the index
 		- if not we create a new vertex, add it to the vertex list, and store the index in the map
+
+
+## SetMeshColor
+```
+colorID = (colorID + 1) % 4;
+```
+- Not much to say, just increments the colorID and wraps around using modulo
+
+## TranslateModel
+```
+modelMatrix = glm::translate(glm::mat4(1.0f), transVec) * modelMatrix;
+```
+- We apply the modelMatrix first so that we can work in world space instead of local space
+	- Technically if we wanted this to work in the general case (when the camera is anywhere in space), we would need to work in view space instead.
+	- But since our camera is always on the Z axis looking at the world origin, this works fine enough
+- If we don't apply the modelMatrix first (i.e. we try to work in local space instead), then when trying to move the model "left and right" (along the X axis) 
+  it would move along its local X axis, which would ALSO be rotated if the model was rotated already.
+- Then we simply translate in world space. `transVec` is a "3D" vector but it only has values in the X and Y components from dX and dY from the mouse input.
+	- We provide `glm::translate()` with an identity matrix and our translation vector to get a translation matrix in world space
+
+
+## RotateModel
+```
+modelMatrix = glm::rotate(glm::mat4(1.0f), angle, axis) * modelMatrix;
+```
+- Similar to translation, we apply the modelMatrix first so that we can work in world space instead of local space
+- Similar problem as translation, if we didn't apply the modelMatrix first, rotating the model would rotate it around its local axes.
+	- e.g. if the model is yawed (rotated around Y) by 90 degrees for example, then trying to pitch it (X-axis) would appear to cause it to roll 
+	(Z-axis) instead because the local X axis is now aligned with the world Z axis after being rotated 90 degrees.
+
+
+## ScaleModel
+```
+modelMatrix = glm::scale(modelMatrix, glm::vec3(scale, scale, scale));
+```
+- We just scale the model matrix by the scale factor in all 3 dimensions, not much else to say here
