@@ -13,6 +13,7 @@
 #include <sstream>
 #include <vector>
 #include <fstream>
+#include <map>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -20,8 +21,6 @@
 
 #include "shaderSource.h"
 #include "shader.h"
-
-using namespace std;
 
 #define MAX_BUFFER_SIZE            1024
 
@@ -84,12 +83,97 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 // TODO: insert your code in this function for Mesh Loading
 //       1) store vertices and normals in verList with order (v.x, v.y, v.z, n.x, n.y, n.z)
 //       2) store vertex indices of each triangle in triList 
-int LoadInput(vector<float> &verList, vector<unsigned> &triList)
+int LoadInput(std::vector<float> &verList, std::vector<unsigned> &triList)
 {
-    // Note: these two lines of code is to avoid runtime error; 
-    //       please remove them after you fill your own code for 3D model loading
-    verList.push_back(0); 
-    triList.push_back(0);
+    std::cout << "Loading file..." << std::endl;
+
+	int vCount = 0, vnCount = 0, vtCount = 0, fCount = 0;
+
+	std::ifstream file("data/sphere.obj");
+
+    if (!file.is_open()) {
+        std::cerr << "Failed to open the file." << std::endl;
+        return -1;
+	}
+
+    /*
+		Read the .obj file
+    */
+	std::vector<glm::vec3> temp_vertices;
+	std::vector<glm::vec3> temp_normals;
+    std::map<std::pair<int, int>, unsigned> indexMap; // Map unique (vIndex, vnIndex) pairs to an index in verList
+    
+    std::string line;
+    while (std::getline(file, line)) {
+		// Check the first word to determine the type of data
+        std::stringstream stream(line);
+        std::string datatype;
+		stream >> datatype;
+
+        // Store v and vn first then use to fill when reading f
+        if (datatype == "v") {
+			glm::vec3 vertex;
+			stream >> vertex.x >> vertex.y >> vertex.z;
+			temp_vertices.push_back(vertex);
+
+            vCount++;
+        }
+        else if (datatype == "vn") {
+			glm::vec3 normal;
+			stream >> normal.x >> normal.y >> normal.z;
+			temp_normals.push_back(normal);
+
+            vnCount++;
+        }
+        else if (datatype == "f") {
+			// Loop through the three vertices of each face
+            for (int i = 0; i < 3; i++) {
+				// Pull the vertex/texture/normal data
+				std::string vertexData;
+				stream >> vertexData;
+
+				// Parse the vertexData to extract indices
+				std::stringstream vertexStream(vertexData);
+				int vIndex, vtIndex, vnIndex;
+				char slash; // just to consume the '/' characters
+				vertexStream >> vIndex >> slash >> vtIndex >> slash >> vnIndex;
+
+				// Check if this (vIndex, vnIndex) pair is already in the map
+                std::pair<int, int> key = std::make_pair(vIndex, vnIndex);
+
+                if (indexMap.find(key) == indexMap.end()) {
+                    // Not found so add to verList
+					// First retrieve the vertex and normal
+                    glm::vec3 vertex = temp_vertices[vIndex - 1];
+                    glm::vec3 normal = temp_normals[vnIndex - 1];
+
+					verList.push_back(vertex.x);
+					verList.push_back(vertex.y);
+					verList.push_back(vertex.z);
+					verList.push_back(normal.x);
+					verList.push_back(normal.y);
+					verList.push_back(normal.z);
+
+                    // Store this newly created vertex index in the map
+					unsigned newIndex = verList.size() / 6 - 1;
+					indexMap[key] = newIndex;
+
+					// Add vertex to triList
+					triList.push_back(newIndex);
+                }
+                else {
+					// If it already exists then we just push the existing index to triList
+					triList.push_back(indexMap[key]);
+                }
+            }
+
+			fCount++;
+        }
+    }
+
+	file.close();
+
+	std::cout << "Loaded " << vCount << " vertices, " << vnCount << " normals, and " << fCount << " faces." << std::endl;
 
     return 0;
 }
@@ -299,8 +383,8 @@ int main()
     myShader.setUpShader(vertexShaderSource,fragmentShaderSource);
 
     // Load input mesh data
-    vector<float> verList;          // This is the list of vertices and normals for rendering
-    vector<unsigned> triList;       // This is the list of faces for rendering
+    std::vector<float> verList;          // This is the list of vertices and normals for rendering
+    std::vector<unsigned> triList;       // This is the list of faces for rendering
     LoadInput(verList, triList);
 
     // create buffers/arrays
