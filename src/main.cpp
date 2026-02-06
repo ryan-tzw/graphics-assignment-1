@@ -89,7 +89,7 @@ int LoadInput(std::vector<float> &verList, std::vector<unsigned> &triList)
 
 	int vCount = 0, vnCount = 0, vtCount = 0, fCount = 0;
 
-	std::ifstream file("data/mickey.obj");
+	std::ifstream file("data/garg.obj");
 
     if (!file.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
@@ -199,7 +199,7 @@ void TranslateModel(glm::vec3 transVec)
 // TODO: insert your code in this function for Mesh Transformation (Scaling)
 void ScaleModel(float scale)
 {
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(scale, scale, scale));
+	modelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale)) * modelMatrix;
 }
 
 

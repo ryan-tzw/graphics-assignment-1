@@ -48,6 +48,10 @@ modelMatrix = glm::rotate(glm::mat4(1.0f), angle, axis) * modelMatrix;
 
 ## ScaleModel
 ```
-modelMatrix = glm::scale(modelMatrix, glm::vec3(scale, scale, scale));
+modelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale)) * modelMatrix;
 ```
-- We just scale the model matrix by the scale factor in all 3 dimensions, not much else to say here
+- I originally had this as just `modelMatrix = glm::scale(modelMatrix, glm::vec3(scale, scale, scale));` because I thought it didn't matter whether we scaled in local or world space.
+- But, I realised there is an advantage to scaling in world space. 
+- In local space, if the model had been moved around like to the side, then when you try scaling it down for example, the model will shrink towards its local origin which is off to the side.
+- Whereas, if you do the scaling in world space, the model will shrink (or expand) towards the world origin (0,0,0) which is at the center of the screen.
+- And since the camera is always looking at the world origin, this gives the impression of the camera "zooming in and out" on the model which feels like a better user experience.
