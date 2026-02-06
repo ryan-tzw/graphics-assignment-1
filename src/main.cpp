@@ -181,7 +181,7 @@ int LoadInput(std::vector<float> &verList, std::vector<unsigned> &triList)
 // TODO: insert your code in this function for Mesh Coloring
 void SetMeshColor(int &colorID)
 {
-   
+	colorID = (colorID + 1) % 4;
 }
 
 // TODO: insert your code in this function for Mesh Transformation (Rotation)
