@@ -1,5 +1,7 @@
 ﻿# OpenGL Mesh Viewer
-50.017 Graphics and Visualisation - Assignment 1
+> 50.017 Graphics and Visualisation - Assignment 1
+
+![gargoyle](screenshots/garg.gif)
 
 # Explanations for each part
 ## LoadInput (mesh loading)
@@ -55,3 +57,6 @@ modelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale)) * mode
 - In local space, if the model had been moved around like to the side, then when you try scaling it down for example, the model will shrink towards its local origin which is off to the side.
 - Whereas, if you do the scaling in world space, the model will shrink (or expand) towards the world origin (0,0,0) which is at the center of the screen.
 - And since the camera is always looking at the world origin, this gives the impression of the camera "zooming in and out" on the model which feels like a better user experience.
+
+# Limitations
+The code always assumes faces are triangles. After trying to load a cube from Blender, I found that it didn't load correctly because the cube's faces were quads.
