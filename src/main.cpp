@@ -83,13 +83,13 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 // TODO: insert your code in this function for Mesh Loading
 //       1) store vertices and normals in verList with order (v.x, v.y, v.z, n.x, n.y, n.z)
 //       2) store vertex indices of each triangle in triList 
-int LoadInput(std::vector<float> &verList, std::vector<unsigned> &triList)
+int LoadInput(std::vector<float> &verList, std::vector<unsigned> &triList, const std::string& filename)
 {
     std::cout << "Loading file..." << std::endl;
 
 	int vCount = 0, vnCount = 0, vtCount = 0, fCount = 0;
 
-	std::ifstream file("data/garg.obj");
+	std::ifstream file(filename);
 
     if (!file.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
@@ -334,6 +334,27 @@ void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
 
 int main()
 {
+    // Prompt for file selection
+    std::string filename;
+    std::cout << "Select a model to load: " << std::endl;
+    std::cout << "  1 - Sphere" << std::endl;
+    std::cout << "  2 - Mickey" << std::endl;
+    std::cout << "  3 - Gargoyle" << std::endl;
+    std::cout << "Or, enter a custom filepath: " << std::endl;
+
+	std::string input;
+	std::getline(std::cin, input);
+
+	if (input == "1") {
+        filename = "data/sphere.obj";
+    } else if (input == "2") {
+        filename = "data/mickey.obj";
+    } else if (input == "3") {
+        filename = "data/garg.obj";
+    } else {
+        filename = input;
+    }
+
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -385,7 +406,7 @@ int main()
     // Load input mesh data
     std::vector<float> verList;          // This is the list of vertices and normals for rendering
     std::vector<unsigned> triList;       // This is the list of faces for rendering
-    LoadInput(verList, triList);
+    LoadInput(verList, triList, filename);
 
     // create buffers/arrays
     unsigned int VBO, VAO,EBO;
